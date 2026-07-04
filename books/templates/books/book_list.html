@@ -6,7 +6,7 @@
 </head>
 <body>
     {% for book in books %}
-        {{ book.title }} by {{ book.author }}<br>
+        {{ book.title }} by {{ book.author }}<a href="{% url 'book_update' book.id %}">Edit</a>
     {% endfor %}
 </body>
 </html>

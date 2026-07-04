@@ -1,14 +1,18 @@
 <html>
 <head>
 <title>
-    Book Creation Form
+    Book Form
 </title>
 </head>
 <body>
 <form method="POST">
      {% csrf_token %}
      {{ form }}
+     {% if is_update %}
+    <button type="submit">Edit Book</button>
+    {% else %}
     <button type="submit">Create Book</button>
+    {% endif %}
 </form>
 </body>
 </html>
