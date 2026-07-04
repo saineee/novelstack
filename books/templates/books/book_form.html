@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>
+    Book Creation Form
+</title>
+</head>
+<body>
+<form method="POST">
+     {% csrf_token %}
+     {{ form }}
+    <button type="submit">Create Book</button>
+</form>
+</body>
+</html>
