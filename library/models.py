@@ -11,7 +11,10 @@ class UserBook(models.Model):
         ('hiatus', 'Hiatus'),
         ('to read', 'To read'),
     ]
-
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'book'], name='unique_user_book')
+        ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     current_chapter = models.IntegerField(null=True, blank=True)
