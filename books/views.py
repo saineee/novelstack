@@ -31,3 +31,11 @@ def book_update(request, book_id):
     else:
         form = BookForm(instance=book)
         return render(request, 'books/book_form.html', {'form': form, 'is_update':is_update})
+
+def book_delete(request, book_id):
+    book = Book.objects.get(id = book_id)
+    if request.method == 'POST':
+       book.delete()
+       return redirect('book_list')
+    else:
+        return render(request, 'books/book_delete.html', {'book': book})

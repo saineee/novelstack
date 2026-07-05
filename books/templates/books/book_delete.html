@@ -1,0 +1,19 @@
+<html>
+<head>
+<title>
+    Deletion Confirmation
+</title>
+</head>
+<body>
+<div>
+    Are you sure you want to delete {{ book.title }}
+</div>
+<div>
+<form method="POST">
+     {% csrf_token %}
+    <button type="submit">Yes</button>
+</form>
+<a href="{% url 'book_list' %}">No</a>
+</div>
+</body>
+</html>
