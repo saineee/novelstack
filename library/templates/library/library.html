@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>
+    Library
+</title>
+</head>
+<body>
+{% for userbook in books %}
+<div>
+{{ userbook.book.title }}<br>
+{{ userbook.book.author }}<br>
+{% endfor %}
+</div>
+</body>
+</html>

@@ -10,3 +10,7 @@ def add_to_library(request, book_id):
         return redirect('book_details', book_id=book_id)
     else:
         return redirect('book_details', book_id=book_id)
+
+def library(request):
+    books = UserBook.objects.filter(user=request.user)
+    return render(request, 'library/library.html', {'books': books})
