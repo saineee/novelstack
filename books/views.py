@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from library.models import UserBook
 from .models import Book
 from .forms import BookForm
 
@@ -42,4 +43,5 @@ def book_delete(request, book_id):
 
 def book_details(request, book_id):
     book = get_object_or_404(Book, id=book_id)
-    return render(request, 'books/book_details.html', {'book': book})
+    already_exists = UserBook.objects.filter(book=book, user=request.user).exists()
+    return render(request, 'books/book_details.html', {'book': book, 'already_exists': already_exists})

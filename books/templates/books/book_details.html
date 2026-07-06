@@ -13,5 +13,13 @@
     Type: {{ book.classification }}<br>
     Genre: {{ book.genre }}<br>
     Status: {{ book.status }}
+    {% if not already_exists %}
+<div>
+    <form method="post" action="{% url 'add_to_library' book.id %}">
+        {% csrf_token %}
+        <button type="submit">Add to Library</button>
+    </form>
+</div>
+    {% endif %}
 </body>
 </html>
