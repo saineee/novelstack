@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>
+    Deletion Confirmation
+</title>
+</head>
+<body>
+<div>
+    Are you sure you want to delete {{ userbook.book.title }} by {{ userbook.book.author }} from your library?
+    <form method="POST", action="{% url 'userbook_delete' userbook_id %}">
+        {% csrf_token %}
+        <button type="submit">Yes</button>
+    </form>
+    <a href="{% url 'library' %}">No</a>
+</div>
+</body>
+</html>
