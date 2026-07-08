@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Update Form
-    </title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Update Form{% endblock %}
+{% block content %}
 <div>
     <form method="post" action="{% url 'userbook_update' userbook_id %}">
         {% csrf_token %}
@@ -13,5 +8,4 @@
         <button type="submit">Save</button>
     </form>
 </div>
-</body>
-</html>
+{% endblock %}

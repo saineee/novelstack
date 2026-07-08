@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>
-    Library
-</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Library{% endblock %}
+{% block content %}
 {% for userbook in books %}
 <nav>
 {{ userbook.book.title }}<br>
@@ -14,5 +9,4 @@
     <a href="{% url 'userbook_delete' userbook.id %}">Delete</a>
 {% endfor %}
 </nav>
-</body>
-</html>
+{% endblock %}
