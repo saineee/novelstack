@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <title>
@@ -6,12 +7,12 @@
 </head>
 <body>
 {% for userbook in books %}
-<div>
+<nav>
 {{ userbook.book.title }}<br>
 {{ userbook.book.author }}<br>
     <a href="{% url 'userbook_update' userbook.id %}">Update</a><br>
     <a href="{% url 'userbook_delete' userbook.id %}">Delete</a>
 {% endfor %}
-</div>
+</nav>
 </body>
 </html>

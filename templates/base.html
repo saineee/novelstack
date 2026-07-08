@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {%block title %}novelstack{% endblock %}
+    </title>
+</head>
+<body>
+<nav>
+    <a href="{% url 'book_list' %}">Book List</a>
+    <a href="{% url 'library' %}">My Library</a>
+</nav>
+{% block content %} {% endblock %}
+</body>
+</html>
