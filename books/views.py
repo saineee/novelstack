@@ -10,7 +10,7 @@ def book_create(request):
         form = BookForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('books/book_list.html')
+            return redirect('book_list')
         return render(request, 'books/book_form.html', {'form': form, 'is_update': is_update})
     else:
         form = BookForm()
@@ -23,7 +23,7 @@ def book_update(request, book_id):
        form = BookForm(request.POST, instance=book)
        if form.is_valid():
            form.save()
-           return redirect('books/book_list.html')
+           return redirect('book_list')
        return render(request, 'books/book_form.html', {'form': form, 'is_update': is_update})
     else:
         form = BookForm(instance=book)
@@ -33,7 +33,7 @@ def book_delete(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     if request.method == 'POST':
        book.delete()
-       return redirect('books/book_list.html')
+       return redirect('book_list')
     else:
         return render(request, 'books/book_delete.html', {'book': book})
 
@@ -42,7 +42,7 @@ def book_details(request, book_id):
     already_exists = UserBook.objects.filter(book=book, user=request.user).exists()
     return render(request, 'books/book_details.html', {'book': book, 'already_exists': already_exists})
 
-def sorted_book_list(request):
+def book_list(request):
     sorted_books = Book.objects.order_by('title')
     title = request.GET.get('title')
     genre = request.GET.get('genre')
