@@ -55,3 +55,5 @@ def book_list(request):
         sorted_books = sorted_books.filter(status = status)
     return render(request, 'books/book_list.html', {'books': sorted_books})
 
+def home(request):
+    return render(request, 'home.html')
