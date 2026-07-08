@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+{{ username }}<br>
+{{ date_joined|date:"M d, Y" }}<br>
+{{ total_books }}<br>
+{{ total_chapters_read|default:0 }}<br>
+{{ avg_rating|default:"No ratings yet" }}<br>
+{{ fav_genre|default:"None yet:" }}<br>
+{% for row in books_by_status %}
+{{ row.status }} - {{ row.count }}<br>
+{% endfor %}
+{% endblock %}
