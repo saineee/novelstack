@@ -2,13 +2,24 @@
 <html>
 <head>
     <title>
-        {%block title %}novelstack{% endblock %}
+        {% block title %}novelstack{% endblock %}
     </title>
 </head>
 <body>
 <nav>
     <a href="{% url 'book_list' %}">Book List</a>
-    <a href="{% url 'library' %}">My Library</a>
+    <a href="{% url 'home' %}">Home</a>
+{% if user.is_authenticated %}
+    <a href="{%  url 'library' %}">My Library</a>
+    <a href="{% url 'profile' %}">{{ user.username }}</a>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+{% else %}
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+{% endif %}
 </nav>
 {% block content %} {% endblock %}
 </body>

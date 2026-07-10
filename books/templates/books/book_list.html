@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Book List{% endblock %}
 {% block content %}
-    <form method="GET" action="{% url 'book_list' %}">
+    <form method="get" action="{% url 'book_list' %}">
         <label for="title-input">Title</label>
         <input type="text" name="title" id="title-input" value="{{ title }}">
         <label for="genre-input">Genre</label>
