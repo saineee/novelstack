@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
+{% block title %}Login{% endblock %}
+{% block form %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Log in</button>
     </form>
-</body>
-</html>
+{% endblock %}
