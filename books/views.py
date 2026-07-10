@@ -44,16 +44,17 @@ def book_details(request, book_id):
 
 def book_list(request):
     sorted_books = Book.objects.order_by('title')
-    title = request.GET.get('title')
-    genre = request.GET.get('genre')
-    status = request.GET.get('status')
+    title = request.GET.get('title', '')
+    genre = request.GET.get('genre', '')
+    status = request.GET.get('status', '')
+    status_choices = Book.STATUS_CHOICES
     if title:
         sorted_books = sorted_books.filter(title__icontains=title)
     if genre:
         sorted_books = sorted_books.filter(genre__icontains=genre)
     if status:
-        sorted_books = sorted_books.filter(status = status)
-    return render(request, 'books/book_list.html', {'books': sorted_books})
+        sorted_books = sorted_books.filter(status=status)
+    return render(request, 'books/book_list.html', {'books': sorted_books, 'title': title, 'genre': genre, 'status': status, 'status_choices': status_choices})
 
 def home(request):
     return render(request, 'home.html')
