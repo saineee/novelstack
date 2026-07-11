@@ -12,7 +12,7 @@ def library_data(db):
     user_two = user.objects.create_user(username='user_two', email='usertwo@gmail.com', password='usertwo12345')
     book_one = Book.objects.create(title="Reverend Insanity", author="Gu Zhen Ren", description="Blank", chapters=2000,
                                    release_date="2018-01-01", classification="Webnovel", genre="Xianxia",
-                                   status="ended")
+                                   status="completed")
     book_two = Book.objects.create(title="Shadow Slave", author="Guilty Three",
                                    description="Growing up in poverty, Sunny never expected anything good from life.",
                                    chapters=3092, release_date="2020-01-01",
