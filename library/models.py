@@ -9,7 +9,7 @@ class UserBook(models.Model):
         ('finished', 'Finished'),
         ('dropped', 'Dropped'),
         ('hiatus', 'Hiatus'),
-        ('to read', 'To read'),
+        ('to_read', 'To Read'),
     ]
     class Meta:
         constraints = [
