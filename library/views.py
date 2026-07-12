@@ -32,16 +32,16 @@ def library(request):
                                                     'reading_status': reading_status, 'status_choices_userbook': status_choices_userbook, 'status_choices': status_choices})
 
 def userbook_update(request, userbook_id):
-    book = get_object_or_404(UserBook, id=userbook_id)
+    userbook = get_object_or_404(UserBook, id=userbook_id)
     if request.method == 'POST':
-        form = UserBookForm(request.POST, instance = book)
+        form = UserBookForm(request.POST, instance = userbook)
         if form.is_valid():
             form.save()
             return redirect('library')
         else:
             return render(request, 'library/update.html', {'form': form, "userbook_id": userbook_id})
     else:
-        form = UserBookForm(instance = book)
+        form = UserBookForm(instance = userbook)
         return render(request, 'library/update.html', {'form': form, "userbook_id": userbook_id})
 
 def userbook_delete(request, userbook_id):

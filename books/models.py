@@ -12,7 +12,7 @@ class Book(models.Model):
     author = models.CharField(max_length=255)
     description = models.TextField()
     chapters = models.IntegerField()
-    release_date = models.DateField()
+    release_date = models.DateField(null=True, blank=True)
     classification = models.CharField(max_length=255)
     genre = models.CharField(max_length=255)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
