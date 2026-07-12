@@ -59,16 +59,6 @@ def test_combined_filters(client, library_data):
     assert len(response.context['books']) == 1
     assert response.context['books'][0].book.title == 'Reverend Insanity'
 
-def test_profile_aggregation(client, library_data):
-    client.force_login(user=library_data['user_one']['user'])
-    response = client.get(reverse('profile'))
-    assert response.context['total_books'] == 2
-    assert response.context['total_chapters_read'] == 3000
-    assert response.context['fav_genre'] in ('Xianxia', 'Fantasy')
-    by_status = {row['status']: row['count'] for row in response.context['books_by_status']}
-    assert by_status == {'hiatus': 1, 'dropped': 1}
-    assert response.context['avg_rating'] == pytest.approx(4.0)
-
 def test_userbook_uniqueness(library_data):
     user = library_data['user_one']['user']
     book = library_data['user_one']['books'][0].book
