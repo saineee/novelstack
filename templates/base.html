@@ -6,6 +6,7 @@
     </title>
 </head>
 <body>
+{% block nav %}
 <nav>
     <a href="{% url 'book_list' %}">Book List</a>
     <a href="{% url 'home' %}">Home</a>
@@ -21,6 +22,7 @@
     <a href="{% url 'register' %}">Register</a>
 {% endif %}
 </nav>
+{% endblock %}
 {% block content %} {% endblock %}
 </body>
 </html>

@@ -127,3 +127,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'book_list'
 LOGOUT_REDIRECT_URL = 'book_list'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
