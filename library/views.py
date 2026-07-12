@@ -1,9 +1,11 @@
-from django.db.models import Count, Sum, Avg
+from django.contrib.auth.decorators import login_required
 from books.models import Book
 from django.shortcuts import render,get_object_or_404, redirect
 from .models import UserBook
 from .forms import UserBookForm
 
+
+@login_required
 def add_to_library(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     if request.method == 'POST':

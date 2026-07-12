@@ -15,8 +15,11 @@
         </select>
         <button type="submit">Submit</button>
     </form>
+    {% if user.is_staff %}
+    <a href="{% url 'book_create' %}">Create Book</a>
+    {% endif %}
     {% for book in books %}
-        {{ book.title }} by {{ book.author }} | <a href="{% url 'book_update' book.id %}">Edit</a> - <a href="{% url 'book_delete' book.id %}">Delete</a>-
+        {{ book.title }} by {{ book.author }}{% if user.is_staff %} | <a href="{% url 'book_update' book.id %}">Edit</a> - <aa href="{% url 'book_delete' book.id %}">Delete</a>{% endif %}-
     <a href="{% url 'book_details' book.id %}">Details</a><br>
     {% empty %}
     <p>No books found.</p>
