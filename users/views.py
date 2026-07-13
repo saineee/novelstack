@@ -22,9 +22,9 @@ def profile(request):
     total_books = my_books.count()
     total_chapters_read = my_books.aggregate(total=Sum('current_chapter'))['total']
     avg_rating = my_books.aggregate(avg=Avg('rating'))['avg']
-    books_by_status = my_books.values('status').annotate(count=Count('id'))
-    retrieve_fav_genre = my_books.values('book__genre').annotate(count=Count('id')).order_by('-count')
-    top = retrieve_fav_genre.first()
+    books_by_status = my_books.values('status').annotate(count=Count('id')) # .values().annotate(): groups by status and counts unique id per group
+    retrieve_fav_genre = my_books.values('book__genre').annotate(count=Count('id')).order_by('-count') # .values().annotate().order_by(), same as above, but add order_by which orders by desc count
+    top = retrieve_fav_genre.first() # retrieve_fav_genre returns a queryset with a list of dict with descending count keypairs, pull the first entry for favorite, can be tied with more than one
     fav_genre = top.get("book__genre") if top else None
     return render(request, 'users/profile.html', {'username': username, 'date_joined': date_joined,
                                                     'my_books': my_books, 'total_books': total_books,

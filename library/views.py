@@ -4,7 +4,7 @@ from django.shortcuts import render,get_object_or_404, redirect
 from .models import UserBook
 from .forms import UserBookForm
 
-
+# anon users cannot add a book to their library, because they do not have a library.
 @login_required
 def add_to_library(request, book_id):
     book = get_object_or_404(Book, id=book_id)
@@ -22,12 +22,13 @@ def library(request):
     reading_status = request.GET.get('reading_status', '')
     status_choices = Book.STATUS_CHOICES
     status_choices_userbook = UserBook.STATUS_CHOICES
+    # all book__(field) traverse the FK to the Book object itself
     if title:
         books=books.filter(book__title__icontains=title)
     if genre:
         books=books.filter(book__genre__icontains=genre)
     if status:
-        books=books.filter(book__status=status)
+        books=books.filter(book__status=status) #status is used here because we are filtering off the Book model's status, not UserBook
     if reading_status:
         books=books.filter(status=reading_status)
     return render(request, 'library/library.html', {'books': books, 'title': title, 'genre': genre, 'status': status,
