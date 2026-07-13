@@ -16,3 +16,4 @@ class Book(models.Model):
     classification = models.CharField(max_length=255)
     genre = models.CharField(max_length=255)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
+    wln_series_id = models.CharField(max_length=255, null=True, blank=True)
