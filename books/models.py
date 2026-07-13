@@ -10,7 +10,7 @@ class Book(models.Model):
 
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     chapters = models.IntegerField()
     release_date = models.DateField(null=True, blank=True)
     classification = models.CharField(max_length=255)
