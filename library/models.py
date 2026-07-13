@@ -23,6 +23,7 @@ class UserBook(models.Model):
                 name = "date_ended_after_date_started"
             )
         ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     current_chapter = models.IntegerField(null=True, blank=True)

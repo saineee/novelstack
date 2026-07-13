@@ -7,6 +7,12 @@ class UserBookForm(forms.ModelForm):
         model = UserBook
         fields = ('current_chapter', 'status', 'rating', 'date_started', 'date_ended')
 
+        widgets = {
+            'date_started': forms.DateInput(attrs={'type': 'date'}),
+            'date_ended': forms.DateInput(attrs={'type': 'date'})
+        }
+    def __init__(self, *args, **kwargs):
+        super(UserBookForm, self).__init__(*args, **kwargs)
     #clean is used because we are checking constraints between tables, and django's CheckConstraint can't span tables
     def clean(self):
         cleaned_data = super().clean()
