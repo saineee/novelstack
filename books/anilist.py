@@ -1,6 +1,4 @@
 import logging
-from collections import defaultdict
-
 import requests
 
 logger = logging.getLogger("novelstack")
@@ -15,12 +13,32 @@ query ($search: String) {
             romaji 
             english 
         }
+        description
+        chapters
+        startDate {
+            year
+            month
+            day
+        }
+        format
+        countryOfOrigin
+        genres
+        status
         coverImage {
-        large
+            large
+        }
+        staff {
+            edges {
+                role
+                node {
+                    name {
+                        full
+                    }
+                }
+            }
+        }  
+        }
     }
-    format
-}
-}
 }   
 """
 
