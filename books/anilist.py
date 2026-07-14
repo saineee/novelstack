@@ -38,7 +38,7 @@ def extract_candidates(response):
     cleaned_data = []
     candidates = response['data']['Page']['media']
     for candidate in candidates:
-        title_data = candidate['title']
+        title_data = candidate.get('title', {})
         eng_title = title_data.get('english')
         rom_title = title_data.get('romaji')
 
