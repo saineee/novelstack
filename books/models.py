@@ -17,3 +17,4 @@ class Book(models.Model):
     genre = models.CharField(max_length=255)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
     anilist_id = models.CharField(max_length=255, null=True, blank=True)
+    anilist_cover_url = models.URLField(null=True, blank=True, max_length=500)
