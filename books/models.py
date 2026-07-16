@@ -13,7 +13,9 @@ class Book(models.Model):
     STATUS_CHOICES = [
         ('ongoing', 'Ongoing'),
         ('completed', 'Completed'),
-        ('hiatus', 'Hiatus')
+        ('hiatus', 'Hiatus'),
+        ('cancelled', 'Cancelled'),
+        ('not_yet_released', 'Not Yet Released')
     ]
 
     title = models.CharField(max_length=255)
@@ -23,7 +25,7 @@ class Book(models.Model):
     release_date = models.DateField(null=True, blank=True)
     classification = models.CharField(max_length=255)
     genres = models.ManyToManyField(Genre)
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ongoing')
     anilist_id = models.CharField(max_length=255, null=True, blank=True)
     anilist_cover_url = models.URLField(null=True, blank=True, max_length=500)
 
