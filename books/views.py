@@ -2,7 +2,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 from django.shortcuts import render, redirect, get_object_or_404
 from library.models import UserBook
-from .models import Book
+from .models import Book, Genre
 from .forms import BookForm
 
 # book creation requires staff privileges, regular users cannot access this form.
@@ -57,15 +57,16 @@ def book_list(request):
     title = request.GET.get('title', '')
     genre = request.GET.get('genre', '')
     status = request.GET.get('status', '')
+    genres = Genre.objects.all()
     status_choices = Book.STATUS_CHOICES
-    # status is exact-match (fixed choice dropdown), title/genre use icontains for partial text search
+    # status, genres is exact-match (fixed choice dropdown), title uses icontains for partial text search
     if title:
         sorted_books = sorted_books.filter(title__icontains=title)
     if genre:
-        sorted_books = sorted_books.filter(genre__icontains=genre)
+        sorted_books = sorted_books.filter(genres__name=genre)
     if status:
         sorted_books = sorted_books.filter(status=status)
-    return render(request, 'books/book_list.html', {'books': sorted_books, 'title': title, 'genre': genre, 'status': status, 'status_choices': status_choices})
+    return render(request, 'books/book_list.html', {'genres': genres, 'books': sorted_books, 'title': title, 'status': status, 'status_choices': status_choices, 'genre': genre})
 
 def home(request):
     return render(request, 'home.html')
