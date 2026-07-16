@@ -19,7 +19,7 @@ class Book(models.Model):
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    chapters = models.IntegerField()
+    chapters = models.IntegerField(null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
     classification = models.CharField(max_length=255)
     genres = models.ManyToManyField(Genre)
