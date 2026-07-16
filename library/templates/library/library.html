@@ -5,7 +5,12 @@
     <label for="title-input">Title</label>
     <input type="text" name="title" id="title-input" value="{{ title }}">
     <label for="genre-input">Genre</label>
-    <input type="text" name="genre" id="genre-input" value="{{ genre }}">
+   <select name="genre" id="genre-input">
+            <option value="" {% if not genre %}selected{% endif %}>Any genre</option>
+            {% for g in genres %}
+            <option value="{{ g.name }}" {% if g.name == genre %}selected{% endif %}>{{ g }}</option>
+            {% endfor %}
+   </select>
     <label for="status-input">Status</label>
     <select name="status" id="status-input">
         <option value="" {% if not status %}selected{% endif %}>Any status</option>
@@ -24,10 +29,8 @@
 </form>
 <nav>
 {% for userbook in books %}
-{{ userbook.book.title }}<br>
-{{ userbook.book.author }}<br>
-    <a href="{% url 'userbook_update' userbook.id %}">Update</a><br>
-    <a href="{% url 'userbook_delete' userbook.id %}">Delete</a>
+{{ userbook.book.title }} by
+{{ userbook.book.author }} - <a href="{% url 'userbook_update' userbook.id %}">Update</a> - <a href="{% url 'userbook_delete' userbook.id %}">Delete</a>
 </nav>
 {% empty %}
 <p>

@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from books.models import Book
+from books.models import Book, Genre
 from django.shortcuts import render,get_object_or_404, redirect
 from .models import UserBook
 from .forms import UserBookForm
@@ -22,16 +22,17 @@ def library(request):
     reading_status = request.GET.get('reading_status', '')
     status_choices = Book.STATUS_CHOICES
     status_choices_userbook = UserBook.STATUS_CHOICES
-    # all book__(field) traverse the FK to the Book object itself
+    genres = Genre.objects.all()
+    # all book__(field) traverse the FK to the Book object itself, book__genre__name, traverse the m2m, and pull name column
     if title:
         books=books.filter(book__title__icontains=title)
     if genre:
-        books=books.filter(book__genre__icontains=genre)
+        books=books.filter(book__genres__name=genre)
     if status:
         books=books.filter(book__status=status) #status is used here because we are filtering off the Book model's status, not UserBook
     if reading_status:
         books=books.filter(status=reading_status)
-    return render(request, 'library/library.html', {'books': books, 'title': title, 'genre': genre, 'status': status,
+    return render(request, 'library/library.html', {'books': books, 'genres': genres, 'title': title, 'genre': genre, 'status': status,
                                                     'reading_status': reading_status, 'status_choices_userbook': status_choices_userbook, 'status_choices': status_choices})
 
 def userbook_update(request, userbook_id):
