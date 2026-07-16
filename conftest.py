@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from books.models import Book
+from books.models import Book, Genre
 from library.models import UserBook
 
 import pytest
@@ -7,17 +7,20 @@ import pytest
 
 @pytest.fixture
 def library_data(db):
+    action = Genre.objects.create(name="Action")
+    fantasy = Genre.objects.create(name="Fantasy")
+    xuanhuan = Genre.objects.create(name="Xuanhuan")
     user = get_user_model()
     user_one = user.objects.create_user(username='user_one', email='userone@gmail.com', password='user12345')
     user_two = user.objects.create_user(username='user_two', email='usertwo@gmail.com', password='usertwo12345')
     book_one = Book.objects.create(title="Reverend Insanity", author="Gu Zhen Ren", description="Blank", chapters=2000,
-                                   release_date="2018-01-01", classification="Webnovel", genre="Xianxia",
-                                   status="completed")
+                                   release_date="2018-01-01", classification="Webnovel", status="completed")
     book_two = Book.objects.create(title="Shadow Slave", author="Guilty Three",
                                    description="Growing up in poverty, Sunny never expected anything good from life.",
                                    chapters=3092, release_date="2020-01-01",
-                                   classification="Webnovel", genre="Fantasy", status="ongoing")
-
+                                   classification="Webnovel", status="ongoing")
+    book_one.genres.add(xuanhuan, action)
+    book_two.genres.add(action, fantasy)
     userbook_one = UserBook.objects.create(user=user_one, book=book_one, current_chapter=1000, status="hiatus",
                                            rating=6, date_started="2024-01-01", date_ended=None)
     userbook_two = UserBook.objects.create(user=user_two, book=book_two, current_chapter=1500, status="reading",
@@ -34,16 +37,26 @@ def library_data(db):
 
 @pytest.fixture
 def book_data(db):
-    book_one = Book.objects.create(title="Reverend Insanity", author="Gu Zhen Ren", description="Blank", chapters=2020, release_date="2018-01-01", classification="Webnovel",
-                                   genre="Xianxia", status="completed")
+
+    xuanhuan = Genre.objects.create(name="Xuanhuan")
+    xianxia = Genre.objects.create(name="Xianxia")
+    fantasy = Genre.objects.create(name="Fantasy")
+
+    book_one = Book.objects.create(title="Reverend Insanity", author="Gu Zhen Ren", description="Blank", chapters=2020, release_date="2018-01-01", classification="Webnovel"
+                                    ,status="completed")
     book_two = Book.objects.create(title="Mother of Learning", author="Unknown", description="Blank", chapters=100, release_date="2020-05-27",
-                                   classification="Webnovel", genre="Fantasy", status="completed")
+                                   classification="Webnovel", status="completed")
     book_three = Book.objects.create(title="Lord of the Mysteries", author="Cuttlefish who loves diving", description="Blank", chapters=1200, release_date="2017-01-23",
-                                     classification="Webnovel", genre="Fantasy", status="ongoing")
+                                     classification="Webnovel", status="ongoing")
     book_four = Book.objects.create(title="Shadow Slave", author="Guilty Three", description="Blank", chapters=3000, release_date="2019-06-07", classification="Webnovel",
-                                    genre="Xuanhuan", status="ongoing")
+                                     status="ongoing")
     book_five = Book.objects.create(title="Lord of the Mysteries 2: Circle of Inevitability", author="Cuttlefish who loves diving", description="Blank", chapters=1100, release_date="2023-06-07",
-                                    classification="Webnovel", genre="Xuanhuan", status="ongoing")
+                                    classification="Webnovel", status="ongoing")
+    book_one.genres.add(xuanhuan)
+    book_two.genres.add(xianxia)
+    book_three.genres.add(fantasy, xianxia)
+    book_four.genres.add(xuanhuan, xianxia)
+    book_five.genres.add(fantasy)
     return {
         'books': [book_one, book_two, book_three, book_four, book_five]
     }

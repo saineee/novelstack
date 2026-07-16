@@ -1,4 +1,4 @@
-from books.models import Book
+from books.models import Book, Genre
 from django.urls.base import reverse
 
 def test_no_filter_return_all_books(client, book_data):
@@ -15,13 +15,13 @@ def test_title_filter(client, book_data):
 def test_genre_xuanhuan_filter(client, book_data):
     response = client.get(reverse('book_list'), {'genre': 'Xuanhuan'})
     query_results = {b.title for b in response.context['books']}
-    expected = {"Lord of the Mysteries 2: Circle of Inevitability", "Shadow Slave"}
+    expected = {"Reverend Insanity", "Shadow Slave"}
     assert query_results == expected
 
 def test_genre_fantasy_filter(client, book_data):
     response = client.get(reverse('book_list'), {'genre': 'Fantasy'})
     query_results = {b.title for b in response.context['books']}
-    expected = {"Mother of Learning", "Lord of the Mysteries"}
+    expected = {"Lord of the Mysteries 2: Circle of Inevitability", "Lord of the Mysteries"}
     assert query_results == expected
 
 def test_status_filter_completed(client, book_data):
@@ -39,7 +39,7 @@ def test_status_filter_ongoing(client, book_data):
 def test_combined_filters(client, book_data):
     response = client.get(reverse('book_list'), {'genre': 'Fantasy', 'status': 'completed'})
     query_results = {b.title for b in response.context['books']}
-    expected = {"Mother of Learning"}
+    expected = set()
     assert query_results == expected
 
 def test_book_details_anon(client, book_data):
@@ -83,8 +83,9 @@ def test_add_to_library_anon(client, book_data):
 
 def test_book_create_staff_post(client, user_data):
     client.force_login(user=user_data['staff'])
+    wuxia = Genre.objects.create(name="Wuxia")
     client.post(reverse('book_create'), {'title': 'Nano Machine', 'author': 'idk', 'description': 'Blank', 'chapters': 1000,
-                                                       'release_date': '2020-01-11', 'classification': 'Webnovel', 'genre': 'Wuxia', 'status': 'completed'})
+                                                       'release_date': '2020-01-11', 'classification': 'Webnovel', 'genres': [wuxia.pk], 'status': 'completed'})
     assert Book.objects.filter(title='Nano Machine').exists() is True
 
 def test_book_delete_staff_post(client, user_data, book_data):
