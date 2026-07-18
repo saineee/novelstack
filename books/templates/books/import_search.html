@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+  <form method="get">
+    <input type="text" name="title" value="{{ request.GET.title }}">
+    <button type="submit">Search</button>
+  </form>
+
+  {% for card in candidates %}
+    <div>
+      <img src="{{ card.media.coverImage.large }}" alt="cover">
+      <p>{{ card.media.title.english|default:card.media.title.romaji }}</p>
+        <p>{{ card.media.startDate.year }}</p>
+        <p>{{ card.media.description }}</p>
+      {% if card.exists %}
+        <span>Already in catalog</span>
+      {% else %}
+        <a href="{% url 'anilist_import' card.media.id %}">Import</a>
+      {% endif %}
+        <br><br>
+    </div>
+  {% empty %}
+    <p>No results.</p>
+  {% endfor %}
+{% endblock %}

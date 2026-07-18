@@ -1,9 +1,14 @@
 from django.contrib.admin.views.decorators import staff_member_required
-
 from django.shortcuts import render, redirect, get_object_or_404
 from library.models import UserBook
+from pydantic import ValidationError
+from .anilist import fetch_candidates, fetch_id
+from .anilist_mapping import mapped_candidates
+from .anilist_schema import Media
 from .models import Book, Genre
 from .forms import BookForm
+import logging
+logger = logging.getLogger("novelstack")
 
 # book creation requires staff privileges, regular users cannot access this form.
 @staff_member_required
@@ -70,3 +75,57 @@ def book_list(request):
 
 def home(request):
     return render(request, 'home.html')
+
+@staff_member_required
+def search(request):
+    title = request.GET.get('title')
+    if title:
+        response = fetch_candidates(title)
+        validated = []
+        for candidate in response['data']['Page']['media']:
+            try:
+                validated.append(Media.model_validate(candidate))
+            except ValidationError as e:
+                logger.error(e)
+
+
+        candidate_ids = [str(m.id) for m in validated]
+        existing_ids = set(Book.objects.filter(anilist_id__in=candidate_ids).values_list('anilist_id', flat=True))
+
+        candidates = [{"media": m, "exists": str(m.id) in existing_ids} for m in validated]
+    else:
+        candidates = []
+    return render(request, 'books/import_search.html', {'candidates': candidates})
+
+@staff_member_required
+def anilist_import(request, anilist_id):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            book = form.save(commit=False)
+            media = Media.model_validate(fetch_id(anilist_id)['data']['Media'])
+            book.anilist_id = media.id
+            book.anilist_cover_url = media.coverImage.large if media.coverImage else None
+            book.save()
+            form.save_m2m()
+            return redirect('book_list')
+    else:
+        response = fetch_id(anilist_id)
+        try:
+            validated = Media.model_validate(response['data']['Media'])
+        except ValidationError as e:
+            logger.error(e)
+            return redirect('search')
+
+        mapped = mapped_candidates(validated)
+        genre_pks = []
+        if mapped['genres']:
+            for name in mapped['genres']:
+                genre, created = Genre.objects.get_or_create(name=name)
+                genre_pks.append(genre.pk)
+
+        mapped['genres'] = genre_pks
+        form = BookForm(initial=mapped)
+
+    return render(request, 'books/import_review.html', {'form': form})
+
