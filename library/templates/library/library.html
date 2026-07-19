@@ -1,40 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}Library{% endblock %}
 {% block content %}
-<form method = "get" action="{% url 'library' %}">
-    <label for="title-input">Title</label>
-    <input type="text" name="title" id="title-input" value="{{ title }}">
-    <label for="genre-input">Genre</label>
-   <select name="genre" id="genre-input">
+<form method="get" action="{% url 'library' %}" class="flex flex-wrap items-end gap-4 max-w-3xl mx-auto my-6">
+    <div class="flex flex-col">
+        <label for="title-input" class="text-sm text-gray-600">Title</label>
+        <input type="text" name="title" id="title-input" value="{{ title }}" class="border rounded px-3 py-1">
+    </div>
+    <div class="flex flex-col">
+        <label for="genre-input" class="text-sm text-gray-600">Genre</label>
+        <select name="genre" id="genre-input" class="border rounded px-3 py-1">
             <option value="" {% if not genre %}selected{% endif %}>Any genre</option>
             {% for g in genres %}
             <option value="{{ g.name }}" {% if g.name == genre %}selected{% endif %}>{{ g }}</option>
             {% endfor %}
-   </select>
-    <label for="status-input">Status</label>
-    <select name="status" id="status-input">
-        <option value="" {% if not status %}selected{% endif %}>Any status</option>
-        {% for value, name in status_choices %}
-        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ name }}</option>
-        {% endfor %}
-    </select>
-    <label for="reading_status-input">Reading Status</label>
-    <select name="reading_status" id="reading_status-input">
-        <option value="" {% if not reading_status %}selected{% endif %}>Any reading status</option>
-        {% for value, name in status_choices_userbook %}
-        <option value="{{ value }}" {% if reading_status == value %}selected{% endif %}>{{ name }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit">Submit</button>
+        </select>
+    </div>
+    <div class="flex flex-col">
+        <label for="status-input" class="text-sm text-gray-600">Status</label>
+        <select name="status" id="status-input" class="border rounded px-3 py-1">
+            <option value="" {% if not status %}selected{% endif %}>Any status</option>
+            {% for value, name in status_choices %}
+            <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="flex flex-col">
+        <label for="reading_status-input" class="text-sm text-gray-600">Reading Status</label>
+        <select name="reading_status" id="reading_status-input" class="border rounded px-3 py-1">
+            <option value="" {% if not reading_status %}selected{% endif %}>Any reading status</option>
+            {% for value, name in status_choices_userbook %}
+            <option value="{{ value }}" {% if reading_status == value %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="px-4 py-1 bg-violet-500 text-white rounded hover:bg-violet-600">Submit</button>
 </form>
-<nav>
-{% for userbook in books %}
-{{ userbook.book.title }} by
-{{ userbook.book.author }} - <a href="{% url 'userbook_update' userbook.id %}">Update</a> - <a href="{% url 'userbook_delete' userbook.id %}">Delete</a>
-</nav>
-{% empty %}
-<p>
-No books found.
-</p>
-{% endfor %}
+<div class="max-w-3xl mx-auto flex flex-col gap-4">
+    {% for userbook in books %}
+<div class="flex gap-4 border rounded-lg p-4 shadow">
+    {% if userbook.book.anilist_cover_url %}
+        <img src="{{ userbook.book.anilist_cover_url }}" class="w-24 rounded">
+    {% else %}
+        <div class="w-24 h-32 bg-gray-200 rounded"></div>
+    {% endif %}
+
+    <div class="flex flex-col gap-2 flex-1">
+       <div>
+            <h3 class="font-bold text-lg">{{ userbook.book.title }}</h3>
+            <p class="text-gray-500 text-sm">{{ userbook.book.author }}</p>
+            <span class="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700">{{ userbook.get_status_display }}</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-violet-500 h-2 rounded-full" style="width: {{ userbook.progress_percent }}%"></div>
+        </div>
+        <p class="text-sm text-gray-500">{{ userbook.current_chapter|default:0 }}/{{ userbook.book.chapters|default:"?" }}</p>
+        <div class="flex gap-2">
+            <a href="{% url 'userbook_update' userbook.id %}" class="px-3 py-1 bg-violet-500 text-white rounded text-sm hover:bg-violet-600">Update</a>
+            <a href="{% url 'userbook_delete' userbook.id %}" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">Delete</a>
+        </div>
+    </div>
+</div>
+    {% empty %}
+        <p>No books found.</p>
+    {% endfor%}
+</div>
 {% endblock %}

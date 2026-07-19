@@ -27,3 +27,9 @@ class UserBook(models.Model):
             models.CheckConstraint(
                 condition=Q(date_ended__gte=F('date_started')),
                 name = "date_ended_after_date_started")]
+
+    @property
+    def progress_percent(self):
+        if self.book.chapters and self.current_chapter:
+            return int(self.current_chapter / self.book.chapters * 100)
+        return 0
