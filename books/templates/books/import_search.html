@@ -4,13 +4,15 @@
     <input type="text" name="title" value="{{ request.GET.title }}">
     <button type="submit">Search</button>
   </form>
-
+{% if search_failed %}
+  <p>Search is temporarily unavailable. Please try again later</p>
+{% else %}
   {% for card in candidates %}
     <div>
       <img src="{{ card.media.coverImage.large }}" alt="cover">
       <p>{{ card.media.title.english|default:card.media.title.romaji }}</p>
         <p>{{ card.media.startDate.year }}</p>
-        <p>{{ card.media.description }}</p>
+        <p>{{ card.media.description|striptags }}</p>
       {% if card.exists %}
         <span>Already in catalog</span>
       {% else %}
@@ -19,6 +21,9 @@
         <br><br>
     </div>
   {% empty %}
-    <p>No results.</p>
+    {% if searched %}
+      <p>No results.</p>
+    {% endif %}
   {% endfor %}
+{% endif %}
 {% endblock %}

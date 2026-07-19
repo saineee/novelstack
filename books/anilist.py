@@ -1,5 +1,6 @@
 import logging
 import requests
+from requests import RequestException
 
 logger = logging.getLogger("novelstack")
 
@@ -58,11 +59,29 @@ url = "https://graphql.anilist.co"
 def fetch_candidates(title):
     variables = {"search": title}
     logger.debug("searching AniList for %s", title)
-    response = requests.post(url, json={'query': SEARCH_QUERY, 'variables': variables})
-    return response.json()
+    try:
+        response = requests.post(url, json={'query': SEARCH_QUERY, 'variables': variables}, timeout=10)
+    except RequestException as e:
+        logger.exception("AniList request failed: %s,", e)
+        return None
+    data = response.json()
+    if data.get('errors'):
+        logger.error("AniList returned errors: %s", data.get('errors'))
+        return None
+    else:
+        return data
 
 def fetch_id(anilist_id):
     variables = {"id": anilist_id}
     logger.debug("searching AniList for %s", anilist_id)
-    response = requests.post(url, json={'query': ID_QUERY, 'variables': variables})
-    return response.json()
+    try:
+        response = requests.post(url, json={'query': ID_QUERY, 'variables': variables}, timeout=10)
+    except RequestException as e:
+        logger.e("AniList request failed: %s,", e)
+        return None
+    data = response.json()
+    if data.get('errors'):
+        logger.error("AniList returned errors: %s", data.get('errors'))
+        return None
+    else:
+        return data

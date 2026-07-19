@@ -80,22 +80,28 @@ def home(request):
 def search(request):
     title = request.GET.get('title')
     if title:
+        searched = True
         response = fetch_candidates(title)
-        validated = []
-        for candidate in response['data']['Page']['media']:
-            try:
-                validated.append(Media.model_validate(candidate))
-            except ValidationError as e:
-                logger.error(e)
-
-
-        candidate_ids = [str(m.id) for m in validated]
-        existing_ids = set(Book.objects.filter(anilist_id__in=candidate_ids).values_list('anilist_id', flat=True))
-
-        candidates = [{"media": m, "exists": str(m.id) in existing_ids} for m in validated]
+        if response is None:
+            candidates = []
+            search_failed = True
+        else:
+            validated = []
+            for candidate in response['data']['Page']['media']:
+                try:
+                    validated.append(Media.model_validate(candidate))
+                except ValidationError as e:
+                    logger.error(e)
+            candidate_ids = [str(m.id) for m in validated]
+            existing_ids = set(Book.objects.filter(anilist_id__in=candidate_ids).values_list('anilist_id', flat=True))
+            candidates = [{"media": m, "exists": str(m.id) in existing_ids} for m in validated]
+            search_failed = False
     else:
         candidates = []
-    return render(request, 'books/import_search.html', {'candidates': candidates})
+        search_failed = False
+        searched = False
+
+    return render(request, 'books/import_search.html', {'candidates': candidates, 'search_failed': search_failed, 'searched': searched})
 
 @staff_member_required
 def anilist_import(request, anilist_id):
@@ -103,7 +109,10 @@ def anilist_import(request, anilist_id):
         form = BookForm(request.POST)
         if form.is_valid():
             book = form.save(commit=False)
-            media = Media.model_validate(fetch_id(anilist_id)['data']['Media'])
+            response = fetch_id(anilist_id)
+            if response is None:
+                return redirect('search')
+            media = Media.model_validate(response['data']['Media'])
             book.anilist_id = media.id
             book.anilist_cover_url = media.coverImage.large if media.coverImage else None
             book.save()
@@ -111,6 +120,8 @@ def anilist_import(request, anilist_id):
             return redirect('book_list')
     else:
         response = fetch_id(anilist_id)
+        if response is None:
+            return redirect('search')
         try:
             validated = Media.model_validate(response['data']['Media'])
         except ValidationError as e:
