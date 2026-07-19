@@ -1,29 +1,40 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <title>
         {% block title %}novelstack{% endblock %}
     </title>
 </head>
 <body>
 {% block nav %}
-<nav>
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'book_list' %}">Book List</a>
-{% if user.is_staff %}
-    <a href="{% url 'search' %}">Import</a>
-{% endif %}
-{% if user.is_authenticated %}
-    <a href="{%  url 'library' %}">Library</a>
-    <a href="{% url 'profile' %}">{{ user.username }}</a>
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-{% else %}
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'register' %}">Register</a>
-{% endif %}
+<nav class="flex items-center justify-between bg-gray-900 text-white px-6 py-3">
+    <div class="flex items-center gap-4">
+        <a href="{% url 'home' %}" class="hover:text-violet-400 text-xl font-bold">novelstack</a>
+        <a href="{% url 'book_list' %}" class="hover:text-violet-400">Book List</a>
+        {% if user.is_staff %}
+            <a href="{% url 'search' %}" class="hover:text-violet-400">Import</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'library' %}" class="hover:text-violet-400" >Library</a>
+        {% endif %}
+    </div>
+    <div class="flex items-center gap-4">
+        {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" class="hover:text-violet-400">{{ user.username }}</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="hover:text-violet-400 bg-transparent border-none cursor-pointer text-white">Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="hover:text-violet-400">Login</a>
+            <a href="{% url 'register' %}" class="hover:text-violet-400">Register</a>
+        {% endif %}
+    </div>
 </nav>
 {% endblock %}
 {% block content %} {% endblock %}
