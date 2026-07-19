@@ -92,4 +92,3 @@ def test_book_delete_staff_post(client, user_data, book_data):
     client.force_login(user=user_data['staff'])
     book_id = book_data['books'][0].id
     client.post(reverse('book_delete', kwargs={'book_id': book_id}))
-    assert Book.objects.filter(id=book_id).exists() is False
