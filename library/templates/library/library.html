@@ -38,11 +38,19 @@
 <div class="max-w-3xl mx-auto flex flex-col gap-4">
     {% for userbook in books %}
 <div class="flex gap-4 border rounded-lg p-4 shadow">
+    <div class="relative w-24 flex-shrink-0">
     {% if userbook.book.anilist_cover_url %}
         <img src="{{ userbook.book.anilist_cover_url }}" class="w-24 rounded">
     {% else %}
         <div class="w-24 h-32 bg-gray-200 rounded"></div>
     {% endif %}
+    {% if userbook.rating %}
+    <span class="absolute top-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded flex items-center gap-0.5">
+        ★ {{ userbook.rating }}
+    </span>
+    {% endif %}
+    </div>
+
 
     <div class="flex flex-col gap-2 flex-1">
        <div>
@@ -54,6 +62,10 @@
             <div class="bg-violet-500 h-2 rounded-full" style="width: {{ userbook.progress_percent }}%"></div>
         </div>
         <p class="text-sm text-gray-500">{{ userbook.current_chapter|default:0 }}/{{ userbook.book.chapters|default:"?" }}</p>
+        <p class="text-xs text-gray-400">
+            {% if userbook.date_started %}Started {{ userbook.date_started }}{% endif %}
+            {% if userbook.date_ended %} · Finished {{ userbook.date_ended }}{% endif %}
+        </p>
         <div class="flex gap-2">
             <a href="{% url 'userbook_update' userbook.id %}" class="px-3 py-1 bg-violet-500 text-white rounded text-sm hover:bg-violet-600">Update</a>
             <a href="{% url 'userbook_delete' userbook.id %}" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">Delete</a>
