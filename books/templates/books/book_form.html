@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}Book Form{% endblock %}
 {% block content %}
-<form method="post">
-     {% csrf_token %}
-     {{ form }}
-     {% if is_update %}
-    <button type="submit">Edit Book</button>
-    {% else %}
-    <button type="submit">Create Book</button>
-    {% endif %}
-</form>
+<div class="max-w-2xl mx-auto my-8 border rounded-lg p-6 shadow">
+    <h1 class="text-xl font-bold mb-4">{% if is_update %}Edit Book{% else %}Create Book{% endif %}</h1>
+    <form method="post" class="flex flex-col gap-3">
+        {% csrf_token %}
+        {{ form }}
+        {% if is_update %}
+            <button type="submit" class="px-4 py-2 bg-violet-500 text-white rounded hover:bg-violet-600">Save changes</button>
+        {% else %}
+            <button type="submit" class="px-4 py-2 bg-violet-500 text-white rounded hover:bg-violet-600">Create book</button>
+        {% endif %}
+    </form>
+</div>
 {% endblock %}

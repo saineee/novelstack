@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
-{% block title%}Import{% endblock %}
+{% block title %}Review Import{% endblock %}
 {% block content %}
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save to catalog</button>
-  </form>
+<div class="max-w-2xl mx-auto my-8 border rounded-lg p-6 shadow">
+    <h1 class="text-xl font-bold mb-2">Review book details</h1>
+    <p class="text-gray-500 text-sm mb-4">These fields were pre-filled from AniList. Check them and adjust before saving.</p>
+    <form method="post" class="flex flex-col gap-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="px-4 py-2 bg-violet-500 text-white rounded hover:bg-violet-600">Save to catalog</button>
+    </form>
+</div>
 {% endblock %}

@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
-    {% block title %}Deletion Confirmation{% endblock %}
-    {% block content %}
-    Are you sure you want to delete {{ book.title }}
-<div>
-<form method="post">
-     {% csrf_token %}
-    <button type="submit">Yes</button>
-</form>
-<a href="{% url 'book_list' %}">No</a>
+{% block title %}Deletion Confirmation{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto my-16 border rounded-lg p-6 shadow text-center">
+    <p class="mb-6">Are you sure you want to delete <span class="font-bold">{{ book.title }}</span> from the catalog?</p>
+    <div class="flex justify-center gap-3">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Yes, delete</button>
+        </form>
+        <a href="{% url 'book_list' %}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</a>
+    </div>
 </div>
 {% endblock %}

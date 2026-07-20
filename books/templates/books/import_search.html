@@ -1,29 +1,38 @@
 {% extends 'base.html' %}
+{% block title %}Import from AniList{% endblock %}
 {% block content %}
-  <form method="get">
-    <input type="text" name="title" value="{{ request.GET.title }}">
-    <button type="submit">Search</button>
-  </form>
-{% if search_failed %}
-  <p>Search is temporarily unavailable. Please try again later</p>
-{% else %}
-  {% for card in candidates %}
-    <div>
-      <img src="{{ card.media.coverImage.large }}" alt="cover">
-      <p>{{ card.media.title.english|default:card.media.title.romaji }}</p>
-        <p>{{ card.media.startDate.year }}</p>
-        <p>{{ card.media.description|striptags }}</p>
-      {% if card.exists %}
-        <span>Already in catalog</span>
-      {% else %}
-        <a href="{% url 'anilist_import' card.media.id %}">Import</a>
-      {% endif %}
-        <br><br>
-    </div>
-  {% empty %}
-    {% if searched %}
-      <p>No results.</p>
+<div class="max-w-5xl mx-auto my-8">
+    <form method="get" class="flex gap-2 mb-8 max-w-lg mx-auto">
+        <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Search AniList..." class="flex-1 border rounded px-3 py-2">
+        <button type="submit" class="px-4 py-2 bg-violet-500 text-white rounded hover:bg-violet-600">Search</button>
+    </form>
+
+    {% if search_failed %}
+        <p class="text-center text-gray-500">Search is temporarily unavailable. Please try again later.</p>
+    {% else %}
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {% for card in candidates %}
+                <div class="border rounded-lg p-3 shadow flex flex-col gap-2">
+                    {% if card.media.coverImage.large %}
+                        <img src="{{ card.media.coverImage.large }}" class="w-full h-48 object-cover rounded">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 rounded"></div>
+                    {% endif %}
+                    <h3 class="font-bold text-sm">{{ card.media.title.english|default:card.media.title.romaji }}</h3>
+                    <p class="text-gray-400 text-xs">{{ card.media.startDate.year }}</p>
+                    <p class="text-gray-500 text-xs line-clamp-3">{{ card.media.description|striptags }}</p>
+                    {% if card.exists %}
+                        <span class="text-xs text-gray-400 mt-auto">Already in catalog</span>
+                    {% else %}
+                        <a href="{% url 'anilist_import' card.media.id %}" class="mt-auto px-3 py-1 bg-violet-500 text-white rounded text-sm text-center hover:bg-violet-600">Import</a>
+                    {% endif %}
+                </div>
+            {% empty %}
+                {% if searched %}
+                    <p class="col-span-full text-center text-gray-500">No results.</p>
+                {% endif %}
+            {% endfor %}
+        </div>
     {% endif %}
-  {% endfor %}
-{% endif %}
+</div>
 {% endblock %}
