@@ -1,32 +1,61 @@
 {% extends 'base.html' %}
 {% block title %}Book List{% endblock %}
 {% block content %}
-    <form method="get" action="{% url 'book_list' %}">
-        <label for="title-input">Title</label>
-        <input type="text" name="title" id="title-input" value="{{ title }}">
-        <label for="genre-input">Genre</label>
-        <select name="genre" id="genre-input">
-            <option value="" {% if not genre %}selected{% endif %}>Any genre</option>
-            {% for g in genres %}
-            <option value="{{ g.name }}" {% if g.name == genre %}selected{% endif %}>{{ g }}</option>
-            {% endfor %}
-        </select>
-        <label for="status-input">Status</label>
-        <select name="status" id="status-input">
-            <option value="" {% if not status %}selected{% endif %}>Any status</option>
-            {% for value, name in status_choices %}
-                <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ name }}</option>
-            {% endfor %}
-        </select>
-        <button type="">Search</button>
+<div class="max-w-5xl mx-auto">
+
+    <form method="get" action="{% url 'book_list' %}" class="flex flex-wrap items-end gap-4 my-6">
+        <div class="flex flex-col">
+            <label for="title-input" class="text-sm text-gray-600">Title</label>
+            <input type="text" name="title" id="title-input" value="{{ title }}" class="border rounded px-3 py-1">
+        </div>
+        <div class="flex flex-col">
+            <label for="genre-input" class="text-sm text-gray-600">Genre</label>
+            <select name="genre" id="genre-input" class="border rounded px-3 py-1">
+                <option value="" {% if not genre %}selected{% endif %}>Any genre</option>
+                {% for g in genres %}
+                <option value="{{ g.name }}" {% if g.name == genre %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex flex-col">
+            <label for="status-input" class="text-sm text-gray-600">Status</label>
+            <select name="status" id="status-input" class="border rounded px-3 py-1">
+                <option value="" {% if not status %}selected{% endif %}>Any status</option>
+                {% for value, name in status_choices %}
+                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="px-4 py-1 bg-violet-500 text-white rounded hover:bg-violet-600">Search</button>
     </form>
+
     {% if user.is_staff %}
-    <a href="{% url 'book_create' %}">Create Book</a><br>
+        <a href="{% url 'book_create' %}" class="inline-block mb-4 px-4 py-1 bg-violet-500 text-white rounded hover:bg-violet-600">Create Book</a>
     {% endif %}
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
     {% for book in books %}
-        {{ book.title }} by {{ book.author }}{% if user.is_staff %} - <a href="{% url 'book_update' book.id %}">Edit</a> - <a href="{% url 'book_delete' book.id %}">Delete</a>{% endif %} -
-    <a href="{% url 'book_details' book.id %}">Details</a><br>
+        <div class="border rounded-lg p-3 shadow hover:shadow-md transition flex flex-col gap-2">
+            <a href="{% url 'book_details' book.id %}" class="flex flex-col gap-2">
+                {% if book.anilist_cover_url %}
+                    <img src="{{ book.anilist_cover_url }}" class="w-full h-48 object-cover rounded">
+                {% else %}
+                    <div class="w-full h-40 bg-gray-200 rounded"></div>
+                {% endif %}
+                <h3 class="font-bold text-sm">{{ book.title }}</h3>
+                <p class="text-gray-500 text-xs">{{ book.author }}</p>
+            </a>
+            {% if user.is_staff %}
+                <div class="flex gap-2 text-xs">
+                    <a href="{% url 'book_update' book.id %}" class="text-violet-600 hover:underline">Edit</a>
+                    <a href="{% url 'book_delete' book.id %}" class="text-red-500 hover:underline">Delete</a>
+                </div>
+            {% endif %}
+        </div>
     {% empty %}
-    <p>No books found.</p>
+        <p>No books found.</p>
     {% endfor %}
+    </div>
+
+</div>
 {% endblock %}
