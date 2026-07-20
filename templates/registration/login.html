@@ -1,10 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}Login{% endblock %}
-{% block nav %}{% endblock %}
 {% block content %}
-    <form method="post">
+<div class="max-w-md mx-auto my-12 border rounded-lg p-6 shadow">
+    <h1 class="text-xl font-bold mb-4">Log in</h1>
+    <form method="post" class="flex flex-col gap-3">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Log in</button>
+        <button type="submit" class="px-4 py-2 bg-violet-500 text-white rounded hover:bg-violet-600">Log in</button>
     </form>
+    <div class="text-sm text-gray-500 mt-4 flex flex-col gap-1">
+        <a href="{% url 'password_reset' %}" class="text-violet-600 hover:underline">Forgot your password?</a>
+        <span>Don't have an account? <a href="{% url 'register' %}" class="text-violet-600 hover:underline">Sign up</a></span>
+    </div>
+</div>
 {% endblock %}
