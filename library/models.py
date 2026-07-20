@@ -1,3 +1,5 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 from django.db.models.query_utils import Q
 from django.db.models.expressions import F
 from django.db import models
@@ -18,7 +20,7 @@ class UserBook(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     current_chapter = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='to_read')
-    rating = models.IntegerField(null=True, blank=True)
+    rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     date_started = models.DateField(null=True, blank=True)
     date_ended = models.DateField(null=True, blank=True)
     class Meta:
