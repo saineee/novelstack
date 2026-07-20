@@ -1,13 +1,41 @@
 {% extends 'base.html' %}
 {% block title %}Profile{% endblock %}
 {% block content %}
-{{ username }}<br>
-{{ date_joined|date:"M d, Y" }}<br>
-{{ total_books }}<br>
-{{ total_chapters_read|default:0 }}<br>
-{{ avg_rating|default:"No ratings yet" }}<br>
-{{ fav_genre|default:"None yet:" }}<br>
-{% for row in books_by_status %}
-{{ row.status }} - {{ row.count }}<br>
-{% endfor %}
+<div class="max-w-3xl mx-auto my-8">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold">{{ username }}</h1>
+        <p class="text-gray-500 text-sm">Joined {{ date_joined|date:"M d, Y" }}</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="border rounded-lg p-4 text-center">
+            <p class="text-2xl font-bold text-violet-600">{{ total_books }}</p>
+            <p class="text-xs text-gray-500">Books</p>
+        </div>
+        <div class="border rounded-lg p-4 text-center">
+            <p class="text-2xl font-bold text-violet-600">{{ total_chapters_read|default:0 }}</p>
+            <p class="text-xs text-gray-500">Chapters Read</p>
+        </div>
+        <div class="border rounded-lg p-4 text-center">
+            <p class="text-2xl font-bold text-violet-600">{{ avg_rating|default:"—" }}</p>
+            <p class="text-xs text-gray-500">Avg Rating</p>
+        </div>
+        <div class="border rounded-lg p-4 text-center">
+            <p class="text-lg font-bold text-violet-600">{{ fav_genre|default:"—" }}</p>
+            <p class="text-xs text-gray-500">Favorite Genre</p>
+        </div>
+    </div>
+
+    <h2 class="font-bold mb-3">Books by Status</h2>
+    <div class="flex flex-col gap-2">
+        {% for row in books_by_status %}
+            <div class="flex justify-between border rounded px-4 py-2 text-sm">
+                <span>{{ row.status }}</span>
+                <span class="font-bold">{{ row.count }}</span>
+            </div>
+        {% empty %}
+            <p class="text-gray-500 text-sm">No books yet.</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
