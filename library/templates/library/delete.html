@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}Deletion Confirmation{% endblock %}
 {% block content %}
-<div>
-    Are you sure you want to delete {{ userbook.book.title }} by {{ userbook.book.author }} from your library?
-    <form method="post", action="{% url 'userbook_delete' userbook_id %}">
-        {% csrf_token %}
-        <button type="submit">Yes</button>
-    </form>
-    <a href="{% url 'library' %}">No</a>
+<div class="max-w-md mx-auto my-16 border rounded-lg p-6 shadow text-center">
+    <p class="mb-6">Are you sure you want to delete <span class="font-bold">{{ userbook.book.title }}</span> by {{ userbook.book.author }} from your library?</p>
+    <div class="flex justify-center gap-3">
+        <form method="post" action="{% url 'userbook_delete' userbook_id %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Yes, delete</button>
+        </form>
+        <a href="{% url 'library' %}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</a>
+    </div>
 </div>
 {% endblock %}
