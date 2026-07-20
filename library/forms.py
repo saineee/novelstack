@@ -18,6 +18,13 @@ class UserBookForm(forms.ModelForm):
         cleaned_data = super().clean()
         date_started = cleaned_data.get('date_started')
         release_date = self.instance.book.release_date
+        current_chapter = cleaned_data.get('current_chapter')
+        total_chapters = self.instance.book.chapters
+
+        if current_chapter is not None and total_chapters is not None:
+            if current_chapter > total_chapters:
+                self.add_error('current_chapter',
+                               f'Progress ({current_chapter}) cannot exceed {self.instance.book.title}\'s total chapters ({total_chapters})')
 
         if date_started is not None and release_date is not None:
             if date_started < release_date:
