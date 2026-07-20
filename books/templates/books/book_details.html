@@ -1,22 +1,45 @@
 {% extends 'base.html' %}
-    {% block title %}Book Details{% endblock %}
+{% block title %}Book Details{% endblock %}
 {% block content %}
-Title: {{ book.title }}<br>
-Author: {{ book.author }}<br>
-    Description: {{ book.description }}<br>
-    Chapters: {{ book.chapters }}<br>
-    Release Date: {{ book.release_date }}<br>
-    Type: {{ book.classification }}<br>
-    Genre: {{ book.genres.all|join:", " }}<br>
-    Status: {{ book.status }}
-    {% if not already_exists %}
-{% if user.is_authenticated %}
-<div>
-    <form method="post" action="{% url 'add_to_library' book.id %}">
-        {% csrf_token %}
-        <button type="submit">Add to Library</button>
-    </form>
+<div class="max-w-4xl mx-auto my-8 flex flex-col md:flex-row gap-8">
+    <div class="flex-shrink-0">
+        {% if book.anilist_cover_url %}
+            <img src="{{ book.anilist_cover_url }}" class="w-48 rounded-lg shadow">
+        {% else %}
+            <div class="w-48 h-72 bg-gray-200 rounded-lg"></div>
+        {% endif %}
+    </div>
+
+    <div class="flex flex-col gap-4 flex-1">
+        <div>
+            <h1 class="text-2xl font-bold">{{ book.title }}</h1>
+            <p class="text-gray-500">{{ book.author }}</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <span class="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700">{{ book.get_status_display }}</span>
+            <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{{ book.classification }}</span>
+        </div>
+
+        <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            <dt class="text-gray-500">Chapters</dt>
+            <dd>{{ book.chapters|default:"—" }}</dd>
+            <dt class="text-gray-500">Release Date</dt>
+            <dd>{{ book.release_date|default:"—" }}</dd>
+            <dt class="text-gray-500">Genres</dt>
+            <dd>{{ book.genres.all|join:", " }}</dd>
+        </dl>
+
+        <p class="text-sm text-gray-700 leading-relaxed">{{ book.description }}</p>
+
+        {% if not already_exists %}
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'add_to_library' book.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 bg-violet-500 text-white rounded hover:bg-violet-600">Add to Library</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
 </div>
-{% endif %}
-    {% endif %}
 {% endblock %}
