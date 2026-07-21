@@ -9,3 +9,4 @@ todo.md
 tailwindcss-linux-x64
 static/css/output.css
 staticfiles/
+.env.docker
