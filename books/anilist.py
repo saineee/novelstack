@@ -77,7 +77,7 @@ def fetch_id(anilist_id):
     try:
         response = requests.post(url, json={'query': ID_QUERY, 'variables': variables}, timeout=10)
     except RequestException as e:
-        logger.e("AniList request failed: %s,", e)
+        logger.exception("AniList request failed: %s,", e)
         return None
     data = response.json()
     if data.get('errors'):
