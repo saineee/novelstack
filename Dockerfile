@@ -28,4 +28,6 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "novelstack.wsgi:application", "--bind", "0.0.0.0:8000"]
+# migrate runs on every container start, but is safe at 1 replica.
+# if scaling above 1, we have to move migrations to a one-off ecs task before update-service
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn novelstack.wsgi:application --bind 0.0.0.0:8000"]

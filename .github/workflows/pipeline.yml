@@ -38,15 +38,36 @@ jobs:
       - run: ./tailwindcss-linux-x64 -i tailwind/input.css -o static/css/output.css --minify
       - run: python manage.py collectstatic --noinput
       - run: pytest
-  verify-oidc:
+  deploy:
     permissions:
       id-token: write
+      contents: read
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: 'us-east-1'
           role-to-assume: 'arn:aws:iam::330866750121:role/GHAuthForNovelstack'
       - run: aws sts get-caller-identity
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr-login
+      - run: |
+          IMAGE=${{ steps.ecr-login.outputs.registry }}/novelstack:${{ github.sha }}
+          docker build -t $IMAGE . 
+          docker push $IMAGE
+      - run: aws ecs describe-task-definition --task-definition novelstack --query taskDefinition > task-definition.json
+      - uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: './task-definition.json'
+          container-name: 'novelstack'
+          image: ${{ steps.ecr-login.outputs.registry }}/novelstack:${{ github.sha }}
+        id: render
+      - uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: novelstack-service
+          cluster: novelstack-cluster
+          wait-for-service-stability: true
     if: github.ref == 'refs/heads/main'
     needs: test
