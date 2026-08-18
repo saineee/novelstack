@@ -22,6 +22,7 @@ I built novelstack because I've been reading novels and books for years, and whi
 - Database-level data integrity with unique constraints and reading progress capped at total chapters
 - pytest coverage across mapping, views, access control, and models
 - Deployed on AWS with ECS Fargate and RDS PostgreSQL
+- Automated CI/CD, tested and deployed on every merge to main
 
 ## Architecture & Deployment
 
@@ -30,8 +31,8 @@ I built novelstack because I've been reading novels and books for years, and whi
 - **ECS Fargate**: runs the container, no server to manage like EC2.
 - **RDS PostgreSQL (private)**: the database. No public IP, only the app can reach it.
 - **Security group**: firewall. The database only accepts connections from the app's security group, nothing from the internet.
-- **Runtime environment variables**: nothing hardcoded. Secrets and config injected at runtime.
-- **Migration task**: migrations run as a one-off task inside the VPC, since the database is private.
+- **Runtime environment variables**: config and secrets come from the task definition at runtime, nothing baked into the image. Moving them to SSM Parameter Store is next.
+- **Migrations**: run on container start, so a schema change ships with the code that needs it. Fine at one replica, and I'd move them to a one-off task before scaling past that.
 
 ## Cost
 
@@ -60,6 +61,20 @@ Runs roughly $5-20/month.
 - **Docker**: containerizes the app for consistent local dev and AWS deployment.
 - **AWS (ECR, ECS Fargate, RDS)**: ECR stores the image, Fargate runs the container with no server management, RDS hosts the production database.
 - **pytest**: unit and view tests across the mapping layer, access control, and models.
+- **GitHub Actions**: runs the tests on every pull request and ships the app to ECS when a branch merges into main. It logs into AWS with OIDC, so there are no AWS keys sitting in the repo or in GitHub secrets.
+
+## CI/CD
+
+Merging to `main` ships the app on its own. There are no manual steps and nothing to click.
+
+1. **Test**: pytest runs against a real Postgres container. Tailwind and collectstatic run first, since the template tests need the static manifest to exist. If anything fails, nothing else happens.
+2. **Authenticate**: the runner trades a signed GitHub token for AWS credentials that expire in an hour. Nothing long-lived is stored anywhere.
+3. **Build and push**: the image goes to ECR tagged with the commit SHA, so I can always tell which commit is actually running.
+4. **Deploy**: it pulls the live task definition, swaps in the new image, registers it as a new revision, and points the service at it. Then it waits for ECS to finish the rollout, so a green check means the new version is running and not just requested.
+
+Pull requests only run the tests. The deploy job is skipped, and the AWS trust policy will not accept a token from anything but main, so an unmerged branch cannot reach AWS even if it tried. The role it does assume can only push to this one ECR repo and update this one ECS service.
+
+Nothing gets to main without a pull request and a passing test run.
 
 ## Running Locally
 
