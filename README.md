@@ -1,105 +1,145 @@
 # novelstack
 
-## About
+A library and reading tracker for Asian novels. Anyone can browse the catalog, and
+signed-in users can keep a personal library to track what they're reading.
 
-novelstack is an Asian entertainment library and reading tracker to track your reading progress.
+## Why I built it
 
-I built novelstack because I've been reading novels and books for years, and while I use AniList as my primary tracker, I thought it would be an awesome idea to create one on my own to see just what goes into making something of that scale, even if it's only 1/10th of AniList.
+I've been reading novels for years, and I use AniList as my main tracker. I wanted to
+build one of my own to see what actually goes into making something like it, even if
+it's only a small fraction of what AniList does.
 
-## Live Demo
+## Live demo
 
-> [novelstack](http://35.170.80.39:8000/)
+[novelstack](http://35.170.80.39:8000/)
+
+The app runs as a single Fargate task with a public IP and no load balancer, so the
+address can change if the container restarts. If the link is dead, the
+[screenshots](#screenshots) below show the same thing.
 
 ## Features
 
-- Public book catalog anyone can browse, search, and filter by title, genre, and status
-- Personal library to add books and track reading status, progress, rating, and dates
-- Profile page with your reading stats
-- Import books from the AniList API through a staff-only, human-reviewed form
-- Genres stored relationally with exact-membership filtering
-- User auth with registration, login, and password reset
-- Pydantic validation on all incoming AniList data
-- Database-level data integrity with unique constraints and reading progress capped at total chapters
-- pytest coverage across mapping, views, access control, and models
-- Deployed on AWS with ECS Fargate and RDS PostgreSQL
-- Automated CI/CD, tested and deployed on every merge to main
+- A public catalog anyone can browse, search, and filter by title, genre, and status
+- A personal library where you can track each book's reading status, progress,
+  rating, and dates
+- A profile page with your reading stats
+- A staff-only import form that pulls books from the AniList API, with a review step
+  before anything is saved
+- User accounts with registration, login, and password reset
 
-## Architecture & Deployment
+## Tech stack
 
-- **Docker (multi-stage build)**: stage 1 builds the Tailwind output CSS from the template classes, then stage 2 pulls that CSS in when containerizing the actual app. Keeps the Tailwind executable out of the final image.
-- **ECR**: stores the image.
-- **ECS Fargate**: runs the container, no server to manage like EC2.
-- **RDS PostgreSQL (private)**: the database. No public IP, only the app can reach it.
-- **Security group**: firewall. The database only accepts connections from the app's security group, nothing from the internet.
-- **Runtime environment variables**: config and secrets come from the task definition at runtime, nothing baked into the image. Moving them to SSM Parameter Store is next.
-- **Migrations**: run on container start, so a schema change ships with the code that needs it. Fine at one replica, and I'd move them to a one-off task before scaling past that.
+| Area           | What I used                                    |
+|----------------|------------------------------------------------|
+| Web app        | Django 6.0, Gunicorn, WhiteNoise, Tailwind CSS |
+| Data           | PostgreSQL, psycopg2, Pydantic                 |
+| External API   | AniList GraphQL API, called with `requests`    |
+| Testing        | pytest                                         |
+| Infrastructure | Docker, AWS (ECR, ECS Fargate, RDS)            |
+| CI/CD          | GitHub Actions with OIDC                       |
 
-## Cost
+A few of these choices are worth explaining:
 
-Runs roughly $5-20/month.
+- **Django** comes with an ORM, authentication, forms, and an admin panel, which
+  covered most of what this project needed out of the box.
+- **Gunicorn** runs the app in production, since Django's built-in server isn't meant
+  for that.
+- **WhiteNoise** serves the CSS and images straight from the app, so I don't need a
+  separate server or bucket for static files.
+- **Pydantic** validates the raw AniList responses before they reach the code that
+  maps them to my models.
 
-- **Fargate** (0.25 vCPU, 0.5 GB, 24/7): ~$5/month
-- **RDS db.t3.micro** (Postgres, single-AZ): ~$15/month
-- **Storage** (20 GB): minimal
+## Data model
 
-### What I skipped, and why
+Genres are stored in their own table instead of as text on each book, and genre
+filtering only returns books that match the selected genres exactly. The database
+also enforces data integrity on its own: unique constraints prevent duplicate
+entries, and a check constraint keeps reading progress from going past a book's total
+chapter count.
 
-- **NAT gateway** (~$32/month): lets a private-subnet task reach the internet to pull the image. Skipped by running the task in a public subnet with a locked security group instead. The DB stays private either way.
-- **ALB** (~$22/month): gives a stable hostname and a place for HTTPS. Not worth it for a portfolio piece. The bare IP is fine for a demo, and I'd add it when the project needs a real URL.
-- **Multi-AZ RDS**: doubles the database cost for automatic failover. Not needed for a portfolio piece.
+## Data source
 
-## Tech Stack
+Book data comes from the AniList GraphQL API. I originally planned to use WLN Updates
+for cover art, but its API had been returning errors for over a year, so I switched
+to AniList, since it's the tracker I already use. GraphQL took some getting used to
+compared to REST, but it works well.
 
-- **Django 6.0**: full-featured web framework, handles the ORM, auth, forms, and admin by default.
-- **PostgreSQL**: relational database, native AWS RDS compatibility for production.
-- **psycopg2**: the driver that lets Django talk to PostgreSQL.
-- **Pydantic**: validates and types the raw AniList GraphQL responses before they hit the mapping layer.
-- **requests**: sends the GraphQL queries to the AniList API.
-- **Tailwind CSS**: handles all the styling.
-- **Gunicorn**: production web server that runs the app in the container, since Django's built-in server isn't meant for production.
-- **WhiteNoise**: serves the app's CSS and images without needing a separate server.
-- **Docker**: containerizes the app for consistent local dev and AWS deployment.
-- **AWS (ECR, ECS Fargate, RDS)**: ECR stores the image, Fargate runs the container with no server management, RDS hosts the production database.
-- **pytest**: unit and view tests across the mapping layer, access control, and models.
-- **GitHub Actions**: runs the tests on every pull request and ships the app to ECS when a branch merges into main. It logs into AWS with OIDC, so there are no AWS keys sitting in the repo or in GitHub secrets.
+Imports go through a human review step because AniList's data is wrong often enough
+that someone should check it before it's saved.
+
+## Architecture
+
+### Docker build
+
+The Dockerfile uses a multi-stage build. The first stage runs Tailwind to generate
+the CSS from the classes used in the templates. The second stage copies that CSS
+into the final app image, so the Tailwind executable doesn't end up in production.
+
+### AWS
+
+The image is stored in ECR and runs on ECS Fargate, so there's no server to manage.
+The database is RDS PostgreSQL with no public IP. Its security group only accepts
+connections from the app's security group, so nothing on the internet can reach it.
+
+Config and secrets are passed in as environment variables in the task definition, so
+nothing sensitive is baked into the image. Migrations run when the container starts,
+so a schema change always ships with the code that needs it. Both of these have
+tradeoffs, which are covered in [Known limitations](#known-limitations).
+
+### What I left out, and why
+
+| Skipped       | Cost        | Why I skipped it                                                                                                                                                |
+|---------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NAT gateway   | ~$32/month  | The task runs in a public subnet with a locked-down security group instead, so it can reach ECR and AniList without one. The database stays private either way. |
+| Load balancer | ~$22/month  | It would give the app a stable hostname and HTTPS, but a bare IP is fine for a demo.                                                                            |
+| Multi-AZ RDS  | Doubles RDS | Automatic database failover isn't needed for a portfolio project.                                                                                               |
 
 ## CI/CD
 
-Merging to `main` ships the app on its own. There are no manual steps and nothing to click.
+Merging to `main` deploys the app automatically, with no manual steps. The pipeline
+runs these steps:
 
-1. **Test**: pytest runs against a real Postgres container. Tailwind and collectstatic run first, since the template tests need the static manifest to exist. If anything fails, nothing else happens.
-2. **Authenticate**: the runner trades a signed GitHub token for AWS credentials that expire in an hour. Nothing long-lived is stored anywhere.
-3. **Build and push**: the image goes to ECR tagged with the commit SHA, so I can always tell which commit is actually running.
-4. **Deploy**: it pulls the live task definition, swaps in the new image, registers it as a new revision, and points the service at it. Then it waits for ECS to finish the rollout, so a green check means the new version is running and not just requested.
+1. **Test.** Tailwind and `collectstatic` run first, since the template tests need
+   the static manifest to exist. Then pytest runs against a real Postgres container.
+   If anything fails, the pipeline stops.
+2. **Authenticate.** The runner exchanges a signed GitHub token for AWS credentials
+   that expire after an hour, so no long-lived keys are stored anywhere.
+3. **Build and push.** The image is pushed to ECR and tagged with the commit SHA, so I
+   can always tell which commit is running.
+4. **Deploy.** The pipeline pulls the current task definition, swaps in the new image,
+   registers it as a new revision, and points the service at it. It then waits for
+   ECS to finish rolling it out, so a passing check means the new version is actually
+   running, not just requested.
 
-Pull requests only run the tests. The deploy job is skipped, and the AWS trust policy will not accept a token from anything but main, so an unmerged branch cannot reach AWS even if it tried. The role it does assume can only push to this one ECR repo and update this one ECS service.
+Pull requests only run the tests. The AWS trust policy only accepts tokens from
+`main`, so an unmerged branch can't reach AWS at all. The role the deploy job assumes
+can only push to this ECR repo and update this ECS service.
 
-Nothing gets to main without a pull request and a passing test run.
+Nothing reaches `main` without a pull request and a passing test run.
 
-## Running Locally
+## Running locally
 
-1. Clone the repo
-
-```bash
-git clone https://github.com/saineee/novelstack.git
-cd novelstack
-```
-
-2. Create a `.env.docker` file in the project root using `.env.docker.example` as a template
-
-```bash
-cp .env.docker.example .env.docker
-```
-
-Then fill in your own `SECRET_KEY` and database credentials.
-
-3. Run with Docker
+1. Clone the repo:
 
 ```bash
-docker compose up --build
+   git clone https://github.com/saineee/novelstack.git
+   cd novelstack
 ```
 
-4. Visit `http://localhost:8000`
+2. Create a `.env.docker` file from the example, then fill in your own `SECRET_KEY`
+   and database credentials:
+
+```bash
+   cp .env.docker.example .env.docker
+```
+
+3. Start everything with Docker Compose:
+
+```bash
+   docker compose up --build
+```
+
+4. Open `http://localhost:8000`.
 
 ## Screenshots
 
@@ -119,17 +159,44 @@ docker compose up --build
 
 ![Library](screenshots/library.png)
 
-## Data Source
+## Cost
 
-novelstack pulls book data from the AniList GraphQL API. I originally chose WLN Updates for cover art, but saw it was dead (its API had been erroring for over a year), so I pivoted to something more reliable and just went with the API of the tracker I already use. GraphQL is annoying compared to REST, but it works.
+| Item                | Monthly cost | Notes                                |
+|---------------------|--------------|--------------------------------------|
+| Fargate             | ~$9          | 0.25 vCPU and 0.5 GB of memory, 24/7 |
+| Public IPv4 address | $3.65        |                                      |
+| RDS                 | ~$15         | db.t3.micro, single-AZ               |
+| Storage             | Minimal      | 20 GB                                |
 
-The import is human-reviewed because AniList's data is wrong often enough that a person should check it before it saves.
+That comes to roughly $28 a month, or about $13 while RDS is covered by the free
+tier.
 
-## Known Issues
+## Known limitations
 
-- The author field is often blank on import. AniList stores authors as staff roles with inconsistent labels, so some combinations don't map cleanly and have to be filled in by hand on the review form.
-- The live demo runs on a bare public IP with no load balancer, so the address can change if the container restarts. A stable domain and HTTPS are planned when the project moves to a load balancer.
+### Secrets are stored in the task definition
+
+Config and secrets are plain environment variables in the task definition, so anyone
+who can read the task definition can read them. Moving them to SSM Parameter Store is
+next on my list.
+
+### Migrations run on container start
+
+This is fine with one task, but if the service scaled past one replica, multiple
+tasks could try to run migrations at the same time. Before scaling, I'd move them to
+a one-off task in the pipeline.
+
+### No stable address or HTTPS
+
+The app runs on a bare public IP with no load balancer, so the address can change if
+the container restarts, and there's no HTTPS. I'll add a domain and HTTPS when the
+project moves behind a load balancer.
+
+### Authors are often missing on import
+
+AniList stores authors as staff roles, and the role labels aren't consistent, so some
+of them don't map cleanly. When that happens, the author has to be filled in by hand
+on the review form.
 
 ## License
 
-MIT
+[MIT](LICENSE)
