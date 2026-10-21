@@ -9,13 +9,11 @@ I've been reading novels for years, and I use AniList as my main tracker. I want
 build one of my own to see what actually goes into making something like it, even if
 it's only a small fraction of what AniList does.
 
-## Live demo
+## Demo
 
-[novelstack](http://35.170.80.39:8000/)
-
-The app runs as a single Fargate task with a public IP and no load balancer, so the
-address can change if the container restarts. If the link is dead, the
-[screenshots](#screenshots) below show the same thing.
+The AWS deployment is torn down to save cost, so there's no live link. The
+[screenshots](#screenshots) below show the app as it ran, and you can run it yourself
+with the steps in [Running locally](#running-locally).
 
 ## Features
 
@@ -68,6 +66,8 @@ Imports go through a human review step because AniList's data is wrong often eno
 that someone should check it before it's saved.
 
 ## Architecture
+
+![novelstack architecture](docs/diagrams/architecture.svg)
 
 ### Docker build
 
